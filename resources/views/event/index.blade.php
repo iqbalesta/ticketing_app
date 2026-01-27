@@ -35,7 +35,7 @@
                     <div class="p-4">
                         <h2 class="text-xl font-bold text-gray-800 mb-2">{{ $event->judul }}</h2>
                         <p class="text-sm text-gray-600 mb-2">{{ substr($event->deskripsi, 0, 100) }}...</p>
-                        <p class="text-sm text-gray-500 mb-1"><strong>Lokasi:</strong> {{ $event->lokasi }}</p>
+                        <p class="text-sm text-gray-500 mb-1"><strong>Lokasi:</strong> {{ $event->lokasi ? $event->lokasi->nama : '-' }}</p>
                         <p class="text-sm text-gray-500 mb-1"><strong>Kategori:</strong> {{ $event->kategori->nama }}</p>
                         <p class="text-sm text-gray-500 mb-3"><strong>Waktu:</strong> {{ $event->waktu }}</p>
                         

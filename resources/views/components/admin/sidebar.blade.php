@@ -38,6 +38,27 @@
                     <span>Manajemen Event</span>
                 </a>
             </li>
+
+            <!-- Tiket item -->
+            <li class="{{ request()->routeIs('admin.tickets.*') || request()->routeIs('admin.tiket.*') ? 'bg-gray-300 rounded-lg' : '' }}">
+                <a href="{{ route('admin.tickets.index') }}" class="tooltip tooltip-right" data-tip="Tiket">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2m6 0V3m0 2h0m6 5h0m-6 5h0" />
+                    </svg>
+                    <span>Manajemen Tiket</span>
+                </a>
+            </li>
+
+            <!-- Lokasi item -->
+            <li class="{{ request()->routeIs('admin.lokasi.*') ? 'bg-gray-300 rounded-lg' : '' }}">
+                <a href="{{ route('admin.lokasi.index') }}" class="tooltip tooltip-right" data-tip="Lokasi">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Manajemen Lokasi</span>
+                </a>
+            </li>
             
             <!-- History item -->
             <li class="{{ request()->routeIs('admin.histories.*') ? 'bg-gray-300 rounded-lg' : '' }}">

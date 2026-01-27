@@ -26,7 +26,7 @@
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div>
                         <p class="text-gray-600"><strong>Kategori:</strong> {{ $event->kategori->nama }}</p>
-                        <p class="text-gray-600"><strong>Lokasi:</strong> {{ $event->lokasi }}</p>
+                        <p class="text-gray-600"><strong>Lokasi:</strong> {{ $event->lokasi ? $event->lokasi->nama . ' (' . $event->lokasi->kota . ')' : '-' }}</p>
                     </div>
                     <div>
                         <p class="text-gray-600"><strong>Waktu:</strong> {{ $event->waktu->format('d M Y H:i') }}</p>

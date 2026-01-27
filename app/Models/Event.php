@@ -14,7 +14,7 @@ class Event extends Model
         'judul',
         'deskripsi',
         'tanggal_waktu',
-        'lokasi',
+        'lokasi_id',
         'kategori_id',
         'gambar',
     ];
@@ -23,14 +23,19 @@ class Event extends Model
         'tanggal_waktu' => 'datetime',
     ];
 
-    public function tikets()
-    {
-        return $this->hasMany(Tiket::class);
-    }
-
     public function kategori()
     {
         return $this->belongsTo(Kategori::class);
+    }
+
+    public function lokasi()
+    {
+        return $this->belongsTo(Lokasi::class);
+    }
+
+    public function tikets()
+    {
+        return $this->hasMany(Tiket::class);
     }
 
     public function user()

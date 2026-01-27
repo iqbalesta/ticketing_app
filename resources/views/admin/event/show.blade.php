@@ -55,7 +55,9 @@
                         <label class="label">
                             <span class="label-text font-semibold">Lokasi</span>
                         </label>
-                        <input type="text" class="input input-bordered w-full" value="{{ $event->lokasi }}" disabled />
+                        <input type="text" class="input input-bordered w-full" 
+                            value="{{ $event->lokasi ? $event->lokasi->nama . ' (' . $event->lokasi->kota . ', ' . $event->lokasi->provinsi . ')' : '-' }}" 
+                            disabled />
                     </div>
 
                     <!-- Kategori -->
@@ -86,122 +88,67 @@
         <!-- Tiket Section -->
         <div class="card bg-base-100 shadow-sm mt-6">
             <div class="card-body">
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex justify-between items-center mb-6">
                     <h3 class="card-title text-xl">Daftar Tiket</h3>
-                    <button class="btn btn-primary btn-sm" onclick="add_ticket_modal.showModal()">
-                        + Tambah Tiket
-                    </button>
+                    <div class="flex gap-2">
+                        <a href="{{ route('admin.tickets.create', $event->id) }}" class="btn btn-primary btn-sm">
+                            + Tambah Tiket
+                        </a>
+                        @if ($event->tikets->count() > 0)
+                        <a href="{{ route('admin.tickets.index') }}?event_id={{ $event->id }}" class="btn btn-info btn-sm">
+                            Lihat Semua Tiket →
+                        </a>
+                        @endif
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Tipe</th>
-                                <th>Harga</th>
-                                <th>Stok</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($event->tikets as $index => $ticket)
-                            <tr>
-                                <th>{{ $index + 1 }}</th>
-                                <td>{{ ucfirst($ticket->tipe) }}</td>
-                                <td>Rp{{ number_format($ticket->harga, 0, ',', '.') }}</td>
-                                <td>{{ $ticket->stok }}</td>
-                                <td>
-                                    <div class="flex gap-2">
-                                        <button class="btn btn-warning btn-xs" onclick="openEditModal({{ $ticket->id }}, '{{ $ticket->tipe }}', {{ $ticket->harga }}, {{ $ticket->stok }})">
+
+                @if ($event->tikets->count() > 0)
+                    <!-- Ticket Cards Preview -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        @foreach ($event->tikets->take(4) as $ticket)
+                            <div class="card bg-gradient-to-br from-info to-info-focus shadow">
+                                <div class="card-body p-4">
+                                    <h4 class="text-white font-bold text-lg mb-2">{{ ucfirst($ticket->tipe) }}</h4>
+                                    <div class="space-y-2 text-sm text-white/80 mb-3">
+                                        <div class="flex justify-between">
+                                            <span>Harga:</span>
+                                            <span class="font-semibold text-white">Rp{{ number_format($ticket->harga, 0, ',', '.') }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Stok:</span>
+                                            <span class="font-semibold text-white">{{ $ticket->stok }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-actions justify-between text-xs">
+                                        <a href="{{ route('admin.tickets.edit', $ticket->id) }}" class="btn btn-ghost btn-xs text-white hover:bg-white/20">
                                             Edit
-                                        </button>
-                                        <button class="btn btn-error btn-xs" onclick="openDeleteModal({{ $ticket->id }}, '{{ $ticket->tipe }}')">
+                                        </a>
+                                        <button class="btn btn-error btn-xs" 
+                                            onclick="openDeleteModal({{ $ticket->id }}, '{{ $ticket->tipe }}')">
                                             Hapus
                                         </button>
                                     </div>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="text-center">Tidak ada tiket untuk event ini.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    @if ($event->tikets->count() > 4)
+                        <div class="text-center text-sm text-gray-500">
+                            Menampilkan 4 dari {{ $event->tikets->count() }} tiket
+                        </div>
+                    @endif
+                @else
+                    <div class="text-center py-8 text-gray-400">
+                        <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 012-2h6a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"></path>
+                        </svg>
+                        <p>Belum ada tiket untuk event ini</p>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
-
-    <!-- Modal Tambah Tiket -->
-    <dialog id="add_ticket_modal" class="modal">
-        <div class="modal-box">
-            <form method="dialog">
-                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-            </form>
-            <h3 class="font-bold text-lg mb-4">Tambah Tiket</h3>
-            <form action="{{ route('admin.tickets.store') }}" method="POST">
-                @csrf
-                <input type="hidden" name="event_id" value="{{ $event->id }}">
-                <div class="form-control mb-3">
-                    <label class="label">
-                        <span class="label-text">Tipe Tiket</span>
-                    </label>
-                    <input type="text" name="tipe" class="input input-bordered w-full" placeholder="Masukkan tipe tiket (contoh: Reguler, VIP, VVIP)" required>
-                </div>
-                <div class="form-control mb-3">
-                    <label class="label">
-                        <span class="label-text">Harga</span>
-                    </label>
-                    <input type="number" name="harga" class="input input-bordered w-full" placeholder="Masukkan harga" required min="0">
-                </div>
-                <div class="form-control mb-4">
-                    <label class="label">
-                        <span class="label-text">Stok</span>
-                    </label>
-                    <input type="number" name="stok" class="input input-bordered w-full" placeholder="Masukkan stok" required min="0">
-                </div>
-                <div class="modal-action">
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </dialog>
-
-    <!-- Modal Edit Tiket -->
-    <dialog id="edit_ticket_modal" class="modal">
-        <div class="modal-box">
-            <form method="dialog">
-                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-            </form>
-            <h3 class="font-bold text-lg mb-4">Edit Tiket</h3>
-            <form id="editTicketForm" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="form-control mb-3">
-                    <label class="label">
-                        <span class="label-text">Tipe Tiket</span>
-                    </label>
-                    <input type="text" name="tipe" id="edit_tipe" class="input input-bordered w-full" placeholder="Masukkan tipe tiket" required>
-                </div>
-                <div class="form-control mb-3">
-                    <label class="label">
-                        <span class="label-text">Harga</span>
-                    </label>
-                    <input type="number" name="harga" id="edit_harga" class="input input-bordered w-full" required min="0">
-                </div>
-                <div class="form-control mb-4">
-                    <label class="label">
-                        <span class="label-text">Stok</span>
-                    </label>
-                    <input type="number" name="stok" id="edit_stok" class="input input-bordered w-full" required min="0">
-                </div>
-                <div class="modal-action">
-                    <button type="submit" class="btn btn-primary">Update</button>
-                </div>
-            </form>
-        </div>
-    </dialog>
 
     <!-- Modal Hapus Tiket -->
     <dialog id="delete_ticket_modal" class="modal">
@@ -223,14 +170,6 @@
     </dialog>
 
     <script>
-        function openEditModal(id, tipe, harga, stok) {
-            document.getElementById('editTicketForm').action = `/admin/tickets/${id}`;
-            document.getElementById('edit_tipe').value = tipe;
-            document.getElementById('edit_harga').value = harga;
-            document.getElementById('edit_stok').value = stok;
-            edit_ticket_modal.showModal();
-        }
-
         function openDeleteModal(id, tipe) {
             document.getElementById('deleteTicketForm').action = `/admin/tickets/${id}`;
             document.getElementById('delete_ticket_name').textContent = tipe.toUpperCase();

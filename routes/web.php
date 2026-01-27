@@ -45,8 +45,22 @@ Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
     // Event Management
     Route::resource('events', AdminEventController::class);
     
-    // Tiket Management (only store, update, destroy)
-    Route::resource('tickets', TiketController::class)->only(['store', 'update', 'destroy']);
+    // Tiket Management
+    Route::resource('tickets', TiketController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    
+    // Give 'tiket' an alias to 'tickets' for consistency
+    Route::get('/tiket', [TiketController::class, 'index'])->name('tiket.index');
+    
+    // Lokasi Management - moved to admin group
+    Route::resource('lokasi', \App\Http\Controllers\LokasiController::class)->names([
+        'index' => 'lokasi.index',
+        'create' => 'lokasi.create',
+        'store' => 'lokasi.store',
+        'show' => 'lokasi.show',
+        'edit' => 'lokasi.edit',
+        'update' => 'lokasi.update',
+        'destroy' => 'lokasi.destroy',
+    ]);
     
     // Histories
     Route::get('/histories', [HistoriesController::class, 'index'])->name('histories.index');

@@ -17,7 +17,7 @@
                             <span class="badge badge-primary mb-3">{{ $event->kategori->nama ?? 'Event' }}</span>
                             <h2 class="text-3xl lg:text-5xl font-bold mb-3">{{ $event->judul }}</h2>
                             <p class="text-lg mb-2">📅 {{ \Carbon\Carbon::parse($event->tanggal_waktu)->locale('id')->translatedFormat('d F Y, H:i') }} WIB</p>
-                            <p class="text-lg mb-4">📍 {{ $event->lokasi }}</p>
+                            <p class="text-lg mb-4">📍 {{ $event->lokasi ? $event->lokasi->nama . ' (' . $event->lokasi->kota . ')' : '-' }}</p>
                             <a href="{{ route('events.show', $event) }}" class="btn btn-primary">Lihat Detail</a>
                         </div>
                     </div>
@@ -126,7 +126,7 @@
             <x-user.event-card 
                 :title="$event->judul" 
                 :date="$event->tanggal_waktu" 
-                :location="$event->lokasi"
+                :location="$event->lokasi ? $event->lokasi->nama . ' (' . $event->lokasi->kota . ')' : '-'"
                 :price="$event->tikets_min_harga" 
                 :image="$event->gambar" 
                 :href="route('events.show', $event)" />

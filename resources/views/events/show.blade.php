@@ -26,7 +26,7 @@
                 <h1 class="text-3xl font-extrabold">{{ $event->judul }}</h1>
                 <p class="text-sm text-gray-500 mt-1">
                   {{ \Carbon\Carbon::parse($event->tanggal_waktu)->locale('id')->translatedFormat('d F Y, H:i') }} • 📍
-                  {{ $event->lokasi }}
+                  {{ $event->lokasi ? $event->lokasi->nama . ' (' . $event->lokasi->kota . ')' : '-' }}
                 </p>
                 <div class="mt-3 flex gap-2 items-center">
                   <span class="badge badge-primary">{{ $event->kategori?->nama ?? 'Tanpa Kategori' }}</span>

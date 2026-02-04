@@ -8,10 +8,48 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Kategori::all();
-        return view('pages.admin.category.index', compact('categories'));
+        $allowedPerPage = [5, 15, 25];
+        $perPage = (int) $request->input('per_page', 5);
+        if (! in_array($perPage, $allowedPerPage)) {
+            $perPage = 5;
+        }
+
+        // opsi sorting: nama & tanggal dibuat
+        $allowedSorts = ['name_asc', 'name_desc', 'date_desc', 'date_asc'];
+        $sort = $request->input('sort', 'name_asc');
+        if (! in_array($sort, $allowedSorts)) {
+            $sort = 'name_asc';
+        }
+
+        $query = Kategori::query();
+
+        switch ($sort) {
+            case 'name_desc':
+                $query->orderBy('nama', 'desc');
+                break;
+            case 'date_desc':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'date_asc':
+                $query->orderBy('created_at', 'asc');
+                break;
+            default: // name_asc
+                $query->orderBy('nama', 'asc');
+                break;
+        }
+
+        $categories = $query
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('pages.admin.category.index', [
+            'categories'      => $categories,
+            'perPage'         => $perPage,
+            'allowedPerPage'  => $allowedPerPage,
+            'sort'            => $sort,
+        ]);
     }
 
     public function store(Request $request)

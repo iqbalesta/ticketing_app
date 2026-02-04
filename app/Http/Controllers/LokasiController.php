@@ -10,10 +10,54 @@ class LokasiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $lokasis = Lokasi::all();
-        return view('admin.lokasi.index', compact('lokasis'));
+        $allowedPerPage = [5, 15, 25];
+        $perPage = (int) $request->input('per_page', 5);
+        if (! in_array($perPage, $allowedPerPage)) {
+            $perPage = 5;
+        }
+
+        // opsi sorting: nama, kota, kapasitas
+        $allowedSorts = ['name_asc', 'name_desc', 'city_asc', 'city_desc', 'capacity_desc', 'capacity_asc'];
+        $sort = $request->input('sort', 'name_asc');
+        if (! in_array($sort, $allowedSorts)) {
+            $sort = 'name_asc';
+        }
+
+        $query = Lokasi::query();
+
+        switch ($sort) {
+            case 'name_desc':
+                $query->orderBy('nama', 'desc');
+                break;
+            case 'city_asc':
+                $query->orderBy('kota', 'asc');
+                break;
+            case 'city_desc':
+                $query->orderBy('kota', 'desc');
+                break;
+            case 'capacity_desc':
+                $query->orderBy('kapasitas', 'desc');
+                break;
+            case 'capacity_asc':
+                $query->orderBy('kapasitas', 'asc');
+                break;
+            default: // name_asc
+                $query->orderBy('nama', 'asc');
+                break;
+        }
+
+        $lokasis = $query
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('admin.lokasi.index', [
+            'lokasis'        => $lokasis,
+            'perPage'        => $perPage,
+            'allowedPerPage' => $allowedPerPage,
+            'sort'           => $sort,
+        ]);
     }
 
     /**

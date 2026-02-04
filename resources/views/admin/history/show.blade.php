@@ -10,24 +10,27 @@
         <div class="card bg-base-100 shadow-md">
             <div class="lg:flex">
                 <div class="lg:w-1/3 p-4">
-                    <img
-                        src="{{ $order->event?->gambar ? asset('images/events/' . $order->event->gambar) : 'https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp' }}"
+                    <img src="{{ $order->event?->gambar ? asset('storage/' . $order->event->gambar) : 'https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp' }}"
                         alt="{{ $order->event?->judul ?? 'Event' }}" class="w-full object-cover mb-2 rounded-lg" />
                     <h2 class="font-semibold text-lg">{{ $order->event?->judul ?? 'Event' }}</h2>
-                    <p class="text-sm text-gray-500 mt-1">{{ $order->event?->lokasi ?? '' }}</p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        {{ $order->event?->lokasi
+                            ? $order->event->lokasi->nama . ' (' . $order->event->lokasi->kota . ', ' . $order->event->lokasi->provinsi . ')'
+                            : '' }}
+                    </p>
                 </div>
                 <div class="card-body lg:w-2/3">
                     <div class="space-y-3">
-                        @foreach($order->detailOrders as $d)
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <div class="font-bold">{{ $d->tiket->tipe }}</div>
-                                <div class="text-sm text-gray-500">Qty: {{ $d->jumlah }}</div>
+                        @foreach ($order->detailOrders as $d)
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-bold">{{ $d->tiket->tipe }}</div>
+                                    <div class="text-sm text-gray-500">Qty: {{ $d->jumlah }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold">Rp {{ number_format($d->subtotal_harga, 0, ',', '.') }}</div>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <div class="font-bold">Rp {{ number_format($d->subtotal_harga, 0, ',', '.') }}</div>
-                            </div>
-                        </div>
                         @endforeach
                     </div>
 

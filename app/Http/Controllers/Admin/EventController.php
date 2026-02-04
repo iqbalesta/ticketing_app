@@ -10,10 +10,48 @@ use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $events = Event::all();
-        return view('admin.event.index', compact('events'));
+        $allowedPerPage = [5, 15, 25];
+        $perPage = (int) $request->input('per_page', 5);
+        if (! in_array($perPage, $allowedPerPage)) {
+            $perPage = 5;
+        }
+
+        // sorting
+        $allowedSorts = ['tanggal_desc', 'tanggal_asc', 'judul_asc', 'judul_desc'];
+        $sort = $request->input('sort', 'tanggal_desc');
+        if (! in_array($sort, $allowedSorts)) {
+            $sort = 'tanggal_desc';
+        }
+
+        $query = Event::with(['kategori', 'lokasi']);
+
+        switch ($sort) {
+            case 'tanggal_asc':
+                $query->orderBy('tanggal_waktu', 'asc');
+                break;
+            case 'judul_asc':
+                $query->orderBy('judul', 'asc');
+                break;
+            case 'judul_desc':
+                $query->orderBy('judul', 'desc');
+                break;
+            default: // 'tanggal_desc'
+                $query->orderBy('tanggal_waktu', 'desc');
+                break;
+        }
+
+        $events = $query
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('admin.event.index', [
+            'events' => $events,
+            'perPage' => $perPage,
+            'allowedPerPage' => $allowedPerPage,
+            'sort' => $sort,
+        ]);
     }
 
     public function create()
@@ -36,9 +74,8 @@ class EventController extends Controller
 
         // Handle file upload
         if ($request->hasFile('gambar')) {
-            $imageName = time().'.'.$request->gambar->extension();
-            $request->gambar->move(public_path('images/events'), $imageName);
-            $validatedData['gambar'] = $imageName;
+            $path = $request->file('gambar')->store('events', 'public');
+            $validatedData['gambar'] = $path; // contoh: events/123456.jpg
         }
 
         $validatedData['user_id'] = auth()->user()->id ?? null;
@@ -80,11 +117,10 @@ class EventController extends Controller
             ]);
 
             // Handle file upload
-            if ($request->hasFile('gambar')) {
-                $imageName = time().'.'.$request->gambar->extension();
-                $request->gambar->move(public_path('images/events'), $imageName);
-                $validatedData['gambar'] = $imageName;
-            }
+        if ($request->hasFile('gambar')) {
+            $path = $request->file('gambar')->store('events', 'public');
+            $validatedData['gambar'] = $path; // contoh: events/123456.jpg
+        }
 
             $event->update($validatedData);
 

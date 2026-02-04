@@ -13,22 +13,31 @@ class TiketController extends Controller
     public function index()
     {
         $eventId = request('event_id');
-        
+
         if ($eventId) {
             $tikets = Tiket::where('event_id', $eventId)->get();
         } else {
             $tikets = Tiket::all();
         }
-        
+
         $events = Event::all();
-        
+
         return view('admin.tiket.index', compact('tikets', 'events'));
     }
 
-    public function create(string $eventId)
+    public function create(Request $request)
     {
+        $eventId = $request->input('event_id');
+
+        if (! $eventId) {
+            return redirect()
+                ->route('admin.events.index')
+                ->with('error', 'Event tidak ditemukan untuk pembuatan tiket.');
+        }
+
         $event = Event::findOrFail($eventId);
         $lokasis = Lokasi::all();
+
         return view('admin.tiket.create', compact('event', 'lokasis'));
     }
 
